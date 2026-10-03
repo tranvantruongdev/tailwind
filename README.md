@@ -8,7 +8,7 @@ a combo, the way a cyclist drafts behind a rival.
 > PlayMode smoke test boots the real game and flies it with the autopilot through a crash and the results
 > screen. The screenshots below come from that test.
 
-**Play it:** download the Android APK (7.0+, ARM64) or the Windows zip from
+**Play it:** download the Android APK (7.1+, ARM64) or the Windows zip from
 [Releases](https://github.com/tranvantruongdev/tailwind/releases).
 
 <p>

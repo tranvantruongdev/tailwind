@@ -10,6 +10,7 @@ namespace Template.EditorTools.Build
     /// <summary>
     /// Local and command-line builds. Keystore secrets come from environment variables, never from
     /// the repo: ANDROID_KEYSTORE_PATH, ANDROID_KEYSTORE_PASS, ANDROID_KEYALIAS_NAME, ANDROID_KEYALIAS_PASS.
+    /// Optional BUILD_VERSION sets the version name shown to players for that build.
     /// CI uses GameCI's builder instead (see .github/workflows/release.yml).
     /// </summary>
     public static class BuildScripts
@@ -63,7 +64,24 @@ namespace Template.EditorTools.Build
                 options = BuildOptions.None,
             };
 
-            var summary = BuildPipeline.BuildPlayer(options).summary;
+            // BUILD_VERSION (e.g. 0.1.0-preview) labels this build only; the project setting is restored after.
+            string savedVersion = PlayerSettings.bundleVersion;
+            string version = Environment.GetEnvironmentVariable("BUILD_VERSION");
+            if (!string.IsNullOrEmpty(version))
+            {
+                PlayerSettings.bundleVersion = version;
+            }
+
+            BuildSummary summary;
+            try
+            {
+                summary = BuildPipeline.BuildPlayer(options).summary;
+            }
+            finally
+            {
+                PlayerSettings.bundleVersion = savedVersion;
+            }
+
             Debug.Log($"[Build] {target}: {summary.result}, {summary.totalSize / (1024f * 1024f):0.0} MB, {summary.totalTime.TotalSeconds:0}s → {outputPath}");
 
             if (Application.isBatchMode)

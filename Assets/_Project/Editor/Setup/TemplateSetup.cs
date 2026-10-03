@@ -62,7 +62,7 @@ namespace Template.EditorTools.Setup
             // Android: IL2CPP + ARM64 is what Google Play requires.
             PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
             PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
-            PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel24;
+            PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel25; // Android 7.1, Unity 6.3's minimum
             PlayerSettings.SetManagedStrippingLevel(NamedBuildTarget.Android, ManagedStrippingLevel.Medium);
 
             // Windows build for recruiters on laptops: a phone-shaped resizable window, Mono backend
