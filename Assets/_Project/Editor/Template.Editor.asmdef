@@ -4,6 +4,7 @@
     "references": [
         "Template.Core",
         "Template.Runtime",
+        "Tailwind.Runtime",
         "Unity.InputSystem"
     ],
     "includePlatforms": [

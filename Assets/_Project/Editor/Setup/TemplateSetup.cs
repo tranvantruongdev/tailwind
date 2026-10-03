@@ -1,7 +1,7 @@
 using System;
 using System.IO;
+using Tailwind;
 using Template.Game.Boot;
-using Template.Game.Sample;
 using UnityEditor;
 using UnityEditor.Build;
 using UnityEditor.SceneManagement;
@@ -46,14 +46,11 @@ namespace Template.EditorTools.Setup
         public static void ApplyPlayerSettings()
         {
             PlayerSettings.companyName = "Tran Van Truong";
-            if (string.IsNullOrEmpty(PlayerSettings.productName) || PlayerSettings.productName == "unity-mobile-template")
-            {
-                PlayerSettings.productName = "Unity Mobile Template";
-            }
+            PlayerSettings.productName = "Tailwind";
 
-            // Change per game, e.g. com.tranvantruong.cadenceclub. Must be unique on Google Play.
-            PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, "com.tranvantruong.template");
-            PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Standalone, "com.tranvantruong.template");
+            // Must be unique on Google Play.
+            PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, "com.tranvantruong.tailwind");
+            PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Standalone, "com.tranvantruong.tailwind");
 
             // Portrait phone game.
             PlayerSettings.defaultInterfaceOrientation = UIOrientation.Portrait;
@@ -82,8 +79,8 @@ namespace Template.EditorTools.Setup
         {
             Directory.CreateDirectory(ScenesFolder);
             string boot = CreateScene("Boot", typeof(GameBootstrap));
-            string title = CreateScene("Title", typeof(TitleController));
-            string game = CreateScene("Game", typeof(SampleGameController));
+            string title = CreateScene("Title", typeof(TailwindTitleController));
+            string game = CreateScene("Game", typeof(RunController));
 
             EditorBuildSettings.scenes = new[]
             {
@@ -111,11 +108,34 @@ namespace Template.EditorTools.Setup
             camera.clearFlags = CameraClearFlags.SolidColor;
             camera.backgroundColor = new Color(0.08f, 0.10f, 0.14f);
             cameraObject.AddComponent<AudioListener>();
+            AddGlobalLight2D();
 
             new GameObject($"{name} Controller", controller);
 
             EditorSceneManager.SaveScene(scene, path);
             return path;
+        }
+
+        /// <summary>
+        /// URP 2D draws sprites with lit materials, so a scene without a 2D light renders them black.
+        /// Added through reflection so the template still compiles in projects without URP.
+        /// </summary>
+        private static void AddGlobalLight2D()
+        {
+            var lightType = Type.GetType("UnityEngine.Rendering.Universal.Light2D, Unity.RenderPipelines.Universal.Runtime");
+            if (lightType == null)
+            {
+                return;
+            }
+
+            var light = new GameObject("Global Light 2D").AddComponent(lightType);
+            var typeProperty = lightType.GetProperty("lightType");
+            if (typeProperty != null && typeProperty.CanWrite)
+            {
+                typeProperty.SetValue(light, Enum.Parse(typeProperty.PropertyType, "Global"));
+            }
+
+            lightType.GetProperty("intensity")?.SetValue(light, 1f);
         }
     }
 }

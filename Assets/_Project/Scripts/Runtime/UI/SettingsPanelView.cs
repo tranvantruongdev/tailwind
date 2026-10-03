@@ -1,11 +1,10 @@
 using System;
 using Template.Core.Save;
 using Template.Core.Settings;
-using Template.UI;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Template.Game.Sample
+namespace Template.UI
 {
     /// <summary>
     /// The "V" in MVP: only displays values and forwards input. All logic sits in
