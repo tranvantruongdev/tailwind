@@ -1,12 +1,14 @@
 # Runs the Unity tests headless and prints a summary.
-#   powershell -ExecutionPolicy Bypass -File Tools/run-unity-tests.ps1 [-TestPlatform PlayMode] [-Graphics] [-UnityVersion 6000.3.25f1]
+#   powershell -ExecutionPolicy Bypass -File Tools/run-unity-tests.ps1 [-TestPlatform PlayMode] [-Graphics] [-TestFilter Name] [-UnityVersion 6000.3.25f1]
 # Reads the editor version from ProjectSettings/ProjectVersion.txt when not given.
 # -Graphics keeps the GPU on (no -nographics), so PlayMode smoke tests can save screenshots to Logs/screenshots.
+# -TestFilter runs only matching tests (full or partial names); naming an [Explicit] test runs it.
 # Exit codes follow Unity: 0 = all passed, 2 = test failures, 1 = errors (compile, licence, ...).
 param(
     [string]$UnityVersion,
     [string]$TestPlatform = "EditMode",
-    [switch]$Graphics
+    [switch]$Graphics,
+    [string]$TestFilter
 )
 
 $ErrorActionPreference = "Stop"
@@ -30,6 +32,7 @@ Write-Host "Running $TestPlatform tests with Unity $UnityVersion ..."
 $unityArgs = @("-batchmode")
 if (-not $Graphics) { $unityArgs += "-nographics" }
 $unityArgs += @("-projectPath", "$project", "-runTests", "-testPlatform", $TestPlatform, "-testResults", $results, "-logFile", $log)
+if ($TestFilter) { $unityArgs += @("-testFilter", $TestFilter) }
 $process = Start-Process -FilePath $unity -ArgumentList $unityArgs -Wait -PassThru -NoNewWindow
 $code = $process.ExitCode
 
