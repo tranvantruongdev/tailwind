@@ -40,3 +40,5 @@ keystore.properties
 Tools/**/bin/
 Tools/**/obj/
 TestResults/
+# Written by the Performance Testing package during test runs and builds
+/Assets/Resources/PerformanceTestRun*

@@ -4,15 +4,20 @@
 the rooftops of Gióng Town at dusk. Tap to flap, and ride the **wind streams** to glide faster and build
 a combo, the way a cyclist drafts behind a rival.
 
-> **Status (Oct 2026):** playable in Unity 6.3 LTS. All 59 EditMode tests pass in Unity, and a PlayMode
-> smoke test boots the real game and flies it with the autopilot through a crash and the results screen.
-> The screenshots below come from that test. Android APK and Windows builds follow.
+> **Status (Oct 2026):** first playable preview. All 59 EditMode tests pass in Unity 6.3 LTS, and a
+> PlayMode smoke test boots the real game and flies it with the autopilot through a crash and the results
+> screen. The screenshots below come from that test.
+
+**Play it:** download the Android APK (7.0+, ARM64) or the Windows zip from
+[Releases](https://github.com/tranvantruongdev/tailwind/releases).
 
 <p>
-  <img src="docs/screenshots/title.png" width="240" alt="Title screen: Tailwind over the dusk rooftops of Gióng Town">
-  <img src="docs/screenshots/wind-stream.png" width="240" alt="The paper glider riding a wind stream past two letters">
-  <img src="docs/screenshots/results.png" width="240" alt="Results: new best, 86 m flown, score 206">
+  <img src="docs/tailwind.gif" width="270" alt="Gameplay: title screen, the glider takes off, collects letters, rides a wind stream, then crashes and the results appear">
+  <img src="docs/screenshots/wind-stream.png" width="270" alt="The paper glider riding a wind stream past two letters">
+  <img src="docs/screenshots/results.png" width="270" alt="Results: new best, 86 m flown, score 206">
 </p>
+
+*The GIF and screenshots are recorded by PlayMode tests, with the autopilot flying (`Tools/make-gif.ps1`).*
 
 | | |
 |---|---|

@@ -33,7 +33,10 @@ $unityArgs = @("-batchmode")
 if (-not $Graphics) { $unityArgs += "-nographics" }
 $unityArgs += @("-projectPath", "$project", "-runTests", "-testPlatform", $TestPlatform, "-testResults", $results, "-logFile", $log)
 if ($TestFilter) { $unityArgs += @("-testFilter", $TestFilter) }
-$process = Start-Process -FilePath $unity -ArgumentList $unityArgs -Wait -PassThru -NoNewWindow
+# Wait for Unity itself: -Wait would also wait for children it leaves behind (shader compilers idle for minutes).
+$process = Start-Process -FilePath $unity -ArgumentList $unityArgs -PassThru -NoNewWindow
+$null = $process.Handle # PS 5.1 quirk: keeps ExitCode readable after the process exits
+$process.WaitForExit()
 $code = $process.ExitCode
 
 if (Test-Path $results) {

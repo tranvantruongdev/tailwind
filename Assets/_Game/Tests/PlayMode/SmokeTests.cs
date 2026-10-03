@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.IO;
 using System.Reflection;
@@ -20,8 +19,6 @@ namespace Tailwind.PlayModeTests
     /// </summary>
     public class SmokeTests
     {
-        private static string ShotFolder => Path.Combine(Application.dataPath, "..", "Logs", "screenshots");
-
         [UnityTest]
         public IEnumerator Boots_flies_crashes_and_shows_results_without_errors()
         {
@@ -114,55 +111,6 @@ namespace Tailwind.PlayModeTests
             }
         }
 
-        /// <summary>Renders the main camera plus overlay UI into a 540×960 PNG.</summary>
-        private static void Capture(string name)
-        {
-            var camera = Camera.main;
-            if (camera == null || SystemInfo.graphicsDeviceType == UnityEngine.Rendering.GraphicsDeviceType.Null)
-            {
-                return; // -nographics: nothing to render
-            }
-
-            Directory.CreateDirectory(ShotFolder);
-            var canvases = UnityEngine.Object.FindObjectsByType<Canvas>(FindObjectsSortMode.None);
-            var modes = new RenderMode[canvases.Length];
-            var orders = new int[canvases.Length];
-            for (int i = 0; i < canvases.Length; i++)
-            {
-                modes[i] = canvases[i].renderMode;
-                orders[i] = canvases[i].sortingOrder;
-                if (canvases[i].renderMode == RenderMode.ScreenSpaceOverlay)
-                {
-                    // In camera space the canvas sorts against sprites, so lift it above them all,
-                    // keeping the canvases' order among themselves, as an overlay would draw.
-                    canvases[i].renderMode = RenderMode.ScreenSpaceCamera;
-                    canvases[i].worldCamera = camera;
-                    canvases[i].planeDistance = 1f;
-                    canvases[i].sortingOrder = 10000 + orders[i];
-                }
-            }
-
-            Canvas.ForceUpdateCanvases();
-            var texture = new RenderTexture(540, 960, 24);
-            var previous = camera.targetTexture;
-            camera.targetTexture = texture;
-            camera.Render();
-            RenderTexture.active = texture;
-            var image = new Texture2D(540, 960, TextureFormat.RGB24, false);
-            image.ReadPixels(new Rect(0, 0, 540, 960), 0, 0);
-            image.Apply();
-            camera.targetTexture = previous;
-            RenderTexture.active = null;
-            File.WriteAllBytes(Path.Combine(ShotFolder, name + ".png"), image.EncodeToPNG());
-
-            for (int i = 0; i < canvases.Length; i++)
-            {
-                canvases[i].renderMode = modes[i];
-                canvases[i].sortingOrder = orders[i];
-            }
-
-            UnityEngine.Object.Destroy(image);
-            texture.Release();
-        }
+        private static void Capture(string name) => CameraShot.Save(Path.Combine(CameraShot.Folder("screenshots"), name + ".png"));
     }
 }

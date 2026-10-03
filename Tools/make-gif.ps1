@@ -9,12 +9,12 @@ param(
 
 $ErrorActionPreference = "Stop"
 $project = Resolve-Path (Join-Path $PSScriptRoot "..")
-$frames = Join-Path $project "Logs/frames/frame_%04d.png"
+$frames = Join-Path $project "Logs/frames/frame_%04d.tga"
 $gif = Join-Path $project "docs/tailwind.gif"
 $mp4 = Join-Path $project "Logs/tailwind.mp4"
 
 if (-not (Get-Command ffmpeg -ErrorAction SilentlyContinue)) { throw "ffmpeg not found. Install it with: winget install Gyan.FFmpeg" }
-if (-not (Test-Path (Join-Path $project "Logs/frames/frame_0000.png"))) { throw "No frames in Logs/frames. Run the TrailerCapture test first (see the header of this script)." }
+if (-not (Test-Path (Join-Path $project "Logs/frames/frame_0000.tga"))) { throw "No frames in Logs/frames. Run the TrailerCapture test first (see the header of this script)." }
 New-Item -ItemType Directory -Force (Split-Path $gif) | Out-Null
 
 # Two-pass palette keeps the dusk gradient smooth; diff_mode re-dithers only what moves.
