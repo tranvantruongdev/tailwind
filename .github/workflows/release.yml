@@ -2,13 +2,18 @@ name: Release
 
 # Push a tag like v1.2.0 → builds Android APK + AAB and a Windows zip, creates a GitHub Release,
 # and (if configured) pushes the APK and Windows builds to itch.io.
+# Run it by hand (Actions → Release → Run workflow) for a dry run: everything builds, nothing is published.
 #
-# Secrets: UNITY_LICENSE, UNITY_EMAIL, UNITY_PASSWORD,
+# Secrets: UNITY_EMAIL, UNITY_PASSWORD,
 #          ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASS, ANDROID_KEYALIAS_NAME, ANDROID_KEYALIAS_PASS,
 #          BUTLER_API_KEY (itch.io → Settings → API keys)
 # Variables: ITCH_USER, ITCH_GAME (leave unset to skip itch.io)
+# Unity Personal licence: GameCI's `personal` method signs in with the account. Don't pass a .ulf as
+# UNITY_LICENSE: Unity removed offline activation for Personal seats and the Hub's .ulf fails on the
+# runner ("TimeStamp validation failed"). unity-builder@v6 (a game-ci/cli wrapper) has that method; v4 doesn't.
 # Check input names against https://game.ci/docs/github/builder when upgrading GameCI.
 on:
+  workflow_dispatch:
   push:
     tags: ['v*']
 
@@ -16,7 +21,7 @@ permissions:
   contents: write
 
 jobs:
-  # Skips the whole release (instead of failing) until the Unity licence secret exists.
+  # Skips the whole release (instead of failing) until the Unity login secrets exist.
   check:
     runs-on: ubuntu-latest
     outputs:
@@ -24,8 +29,9 @@ jobs:
     steps:
       - id: licence
         env:
-          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-        run: echo "present=$([ -n "$UNITY_LICENSE" ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        run: echo "present=$([ -n "$UNITY_EMAIL" ] && [ -n "$UNITY_PASSWORD" ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
 
   build:
     name: Build ${{ matrix.name }}
@@ -34,6 +40,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
+      max-parallel: 1 # each build signs in and takes a Unity Personal seat; don't hold three at once
       matrix:
         include:
           - name: android-apk
@@ -59,12 +66,12 @@ jobs:
           key: Library-${{ matrix.targetPlatform }}-${{ hashFiles('Packages/packages-lock.json') }}
           restore-keys: Library-${{ matrix.targetPlatform }}-
 
-      - uses: game-ci/unity-builder@v4
+      - uses: game-ci/unity-builder@v6
         env:
-          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
+          buildsPath: build # the upload step below reads build/<targetPlatform>
           targetPlatform: ${{ matrix.targetPlatform }}
           androidExportType: ${{ matrix.androidExportType }}
           androidKeystoreName: release.keystore
@@ -82,6 +89,7 @@ jobs:
 
   publish:
     needs: build
+    if: startsWith(github.ref, 'refs/tags/v') # a manual run is a dry run: build only
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
