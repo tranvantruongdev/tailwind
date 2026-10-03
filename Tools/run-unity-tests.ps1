@@ -1,0 +1,44 @@
+# Runs the Unity EditMode tests headless and prints a summary.
+#   powershell -ExecutionPolicy Bypass -File Tools/run-unity-tests.ps1 [-UnityVersion 6000.3.25f1]
+# Reads the editor version from ProjectSettings/ProjectVersion.txt when not given.
+# Exit codes follow Unity: 0 = all passed, 2 = test failures, 1 = errors (compile, licence, ...).
+param(
+    [string]$UnityVersion,
+    [string]$TestPlatform = "EditMode"
+)
+
+$ErrorActionPreference = "Stop"
+$project = Resolve-Path (Join-Path $PSScriptRoot "..")
+
+if (-not $UnityVersion) {
+    $versionFile = Join-Path $project "ProjectSettings/ProjectVersion.txt"
+    if (-not (Test-Path $versionFile)) { throw "No ProjectSettings/ProjectVersion.txt. Run Tools/setup/adopt-unity-project.mjs first, or pass -UnityVersion." }
+    $UnityVersion = ((Get-Content $versionFile | Select-String "m_EditorVersion:").ToString() -split ":\s*")[1].Trim()
+}
+
+$unity = "C:\Program Files\Unity\Hub\Editor\$UnityVersion\Editor\Unity.exe"
+if (-not (Test-Path $unity)) { throw "Unity $UnityVersion not found at $unity. Install it from Unity Hub." }
+
+$results = Join-Path $project "Logs/test-results-$TestPlatform.xml"
+$log = Join-Path $project "Logs/test-run-$TestPlatform.log"
+New-Item -ItemType Directory -Force (Split-Path $results) | Out-Null
+
+Write-Host "Running $TestPlatform tests with Unity $UnityVersion ..."
+$args = @("-batchmode", "-nographics", "-projectPath", "$project", "-runTests", "-testPlatform", $TestPlatform, "-testResults", $results, "-logFile", $log)
+$process = Start-Process -FilePath $unity -ArgumentList $args -Wait -PassThru -NoNewWindow
+$code = $process.ExitCode
+
+if (Test-Path $results) {
+    [xml]$xml = Get-Content $results
+    $run = $xml.'test-run'
+    Write-Host ("Result: {0} — {1} passed, {2} failed, {3} skipped (total {4})" -f $run.result, $run.passed, $run.failed, $run.skipped, $run.total)
+    foreach ($case in $xml.SelectNodes("//test-case[@result='Failed']")) {
+        Write-Host "  FAILED $($case.fullname)" -ForegroundColor Red
+        Write-Host "    $($case.failure.message.'#cdata-section')"
+    }
+} else {
+    Write-Host "No results file. Check the log: $log" -ForegroundColor Yellow
+    Get-Content $log -Tail 40 | Select-String -Pattern "error|licen" | ForEach-Object { Write-Host "  $_" }
+}
+
+exit $code
