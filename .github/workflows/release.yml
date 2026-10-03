@@ -16,8 +16,21 @@ permissions:
   contents: write
 
 jobs:
+  # Skips the whole release (instead of failing) until the Unity licence secret exists.
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      licence: ${{ steps.licence.outputs.present }}
+    steps:
+      - id: licence
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        run: echo "present=$([ -n "$UNITY_LICENSE" ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+
   build:
     name: Build ${{ matrix.name }}
+    needs: check
+    if: needs.check.outputs.licence == 'true'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -82,7 +95,7 @@ jobs:
           mkdir -p release
           cp dist/android-apk/*.apk "release/${name}.apk"
           cp dist/android-aab/*.aab "release/${name}.aab"
-          (cd dist/windows && zip -qr "../../release/${name}-windows.zip" .)
+          (cd dist/windows && zip -qr "../../release/${name}-windows.zip" . -x '*_DoNotShip/*')
           ls -la release
 
       - name: Push to itch.io
