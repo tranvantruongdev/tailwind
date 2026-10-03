@@ -42,3 +42,5 @@ Tools/**/obj/
 TestResults/
 # Written by the Performance Testing package during test runs and builds
 /Assets/Resources/PerformanceTestRun*
+# Native (CMake) scratch from Android Gradle builds
+/.utmp/
