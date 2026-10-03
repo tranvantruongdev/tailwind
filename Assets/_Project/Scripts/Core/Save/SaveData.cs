@@ -13,6 +13,10 @@ namespace Template.Core.Save
         public SettingsData settings = new SettingsData();
         public int bestScore;
         public int totalRuns;
+
+        // Tailwind (save v3)
+        public int bestDistance;
+        public int storyIndex = -1;
     }
 
     [Serializable]

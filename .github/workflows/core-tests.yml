@@ -15,4 +15,7 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
-      - run: dotnet test Tools/CoreTests/Template.Core.Tests.csproj --nologo
+      - name: Template core
+        run: dotnet test Tools/CoreTests/Template.Core.Tests.csproj --nologo
+      - name: Tailwind game rules (includes bot playing 30 courses to 1000 m)
+        run: dotnet test Tools/GameTests/Tailwind.Core.Tests.csproj --nologo

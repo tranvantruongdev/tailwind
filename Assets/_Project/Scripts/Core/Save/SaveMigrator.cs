@@ -87,7 +87,7 @@ namespace Template.Core.Save
     /// <summary>The save format history of this project. Each game edits this file as its data evolves.</summary>
     public static class SaveSchema
     {
-        public const int CurrentVersion = 2;
+        public const int CurrentVersion = 3;
 
         public static SaveMigrator CreateMigrator()
         {
@@ -100,6 +100,19 @@ namespace Template.Core.Save
                     if (data["totalRuns"] == null)
                     {
                         data["totalRuns"] = 0;
+                    }
+                })
+                // v3 (Tailwind) adds the best distance and the highest story beat reached.
+                .Add(2, data =>
+                {
+                    if (data["bestDistance"] == null)
+                    {
+                        data["bestDistance"] = 0;
+                    }
+
+                    if (data["storyIndex"] == null)
+                    {
+                        data["storyIndex"] = -1;
                     }
                 });
         }
