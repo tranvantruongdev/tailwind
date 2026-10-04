@@ -1,6 +1,9 @@
 # itch.io page — copy and paste
 
-Create it at itch.io → **Upload new project**. Keep it a **draft** until `v1.0.0`.
+Create it at itch.io → **Upload new project**. Keep it a **draft** until `v1.0.0`: the first switch to
+Public puts the page on itch.io's Most Recent list, and that happens only once.
+
+Filled in on 2026-10-04 and saved as a draft. Still open: the AI generation disclosure (the owner's call).
 
 | Field | Value |
 |---|---|
@@ -13,10 +16,10 @@ Create it at itch.io → **Upload new project**. Keep it a **draft** until `v1.0
 | Pricing | No payments |
 | Uploads | Done by CI (butler): channels `android` and `windows`. Nothing to upload by hand |
 | Genre | Action |
-| Tags | `one-button`, `casual`, `arcade`, `endless`, `flappy-bird`, `2d`, `minimalist`, `android`, `unity` |
-| Platforms (tick) | Windows, Android |
-| Cover image | 630 × 500. Use the title screenshot cropped, or `docs/screenshots/title.png` |
-| Screenshots | `docs/screenshots/title.png`, `wind-stream.png`, `results.png` |
+| Tags | `one-button`, `casual`, `arcade`, `endless`, `flappy-bird`, `2d`, `minimalist`, `unity` (no platform tags: itch.io asks to leave those to the platform ticks) |
+| Platforms (tick) | Windows, Android (butler sets them from the channel names) |
+| Cover image | `docs/itch-cover.png`: the title screenshot scaled to 630 wide and cropped to 630 × 500 |
+| Screenshots | `docs/tailwind.gif`, `docs/screenshots/wind-stream.png`, `results.png`, `title.png` |
 | Gameplay video / GIF | `docs/tailwind.gif` (or the MP4 from `Tools/make-gif.ps1`) |
 
 ## Description
@@ -35,11 +38,11 @@ Create it at itch.io → **Upload new project**. Keep it a **draft** until `v1.0
 >
 > **Controls:** tap (phone) · Space or click (Windows) · Back/Esc pauses.
 >
-> Made solo in Unity by Tran Van Truong, a Unity game developer. Source code and design notes:
+> Made in Unity by Tran Van Truong, a Unity game developer. Source code and design notes:
 > https://github.com/tranvantruongdev/tailwind
 
 ## Install notes (paste under the downloads)
 
 > **Android:** download the APK, open it, and allow installs from this source when asked.
-> **Windows:** unzip and run `Tailwind.exe`. Windows SmartScreen may warn because the game isn't
+> **Windows:** unzip and run `game.exe` (the release workflow builds with `buildName: game`). Windows SmartScreen may warn because the game isn't
 > code-signed: choose *More info → Run anyway*.
