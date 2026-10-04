@@ -82,7 +82,8 @@ namespace Tailwind.View
             float width = height * _camera.aspect;
 
             _sky.transform.position = new Vector3(cam.x, cam.y, 0f);
-            _sky.transform.localScale = new Vector3(width * 1.1f * 256f, height * 1.1f, 1f);
+            // The gradient only varies vertically, so cover any aspect (tablets, landscape captures) generously.
+            _sky.transform.localScale = new Vector3(Mathf.Max(width, height) * 1.2f * 256f, height * 1.1f, 1f);
             _sun.transform.position = new Vector3(cam.x + width * 0.22f, cam.y + height * 0.12f, 0f);
             _ground.transform.position = new Vector3(cam.x, _ground.transform.position.y, 0f);
 

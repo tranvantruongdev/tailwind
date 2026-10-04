@@ -27,16 +27,29 @@ namespace Tailwind.PlayModeTests
             var canvases = Object.FindObjectsByType<Canvas>(FindObjectsSortMode.None);
             var modes = new RenderMode[canvases.Length];
             var orders = new int[canvases.Length];
+            var factors = new float[canvases.Length];
             for (int i = 0; i < canvases.Length; i++)
             {
                 modes[i] = canvases[i].renderMode;
                 orders[i] = canvases[i].sortingOrder;
+                factors[i] = canvases[i].scaleFactor;
                 if (canvases[i].renderMode == RenderMode.ScreenSpaceOverlay)
                 {
                     canvases[i].renderMode = RenderMode.ScreenSpaceCamera;
                     canvases[i].worldCamera = camera;
                     canvases[i].planeDistance = 1f;
                     canvases[i].sortingOrder = 10000 + orders[i];
+                }
+
+                // CanvasScaler only updates once a frame from the screen size; scale for this capture's size now,
+                // the way a phone or tablet of that shape would.
+                var scaler = canvases[i].GetComponent<UnityEngine.UI.CanvasScaler>();
+                if (scaler != null && scaler.uiScaleMode == UnityEngine.UI.CanvasScaler.ScaleMode.ScaleWithScreenSize)
+                {
+                    var reference = scaler.referenceResolution;
+                    float logWidth = Mathf.Log(width / reference.x, 2f);
+                    float logHeight = Mathf.Log(height / reference.y, 2f);
+                    canvases[i].scaleFactor = Mathf.Pow(2f, Mathf.Lerp(logWidth, logHeight, scaler.matchWidthOrHeight));
                 }
             }
 
@@ -62,6 +75,7 @@ namespace Tailwind.PlayModeTests
             {
                 canvases[i].renderMode = modes[i];
                 canvases[i].sortingOrder = orders[i];
+                canvases[i].scaleFactor = factors[i];
             }
         }
     }

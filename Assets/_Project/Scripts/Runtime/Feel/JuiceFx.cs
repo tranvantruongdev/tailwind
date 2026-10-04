@@ -70,8 +70,12 @@ namespace Template.Feel
                 return;
             }
 
-            var label = UiFactory.CreateText(parent, text, fontSize, anchoredPosition, new Vector2(400, 120));
+            var label = UiFactory.CreateText(parent, text, fontSize, anchoredPosition, new Vector2(600, 140));
             label.color = color;
+            if (UiTheme.Current.bodyOutline != null)
+            {
+                label.fontSharedMaterial = UiTheme.Current.bodyOutline; // stays readable over bright sky
+            }
             var rect = label.rectTransform;
             float rise = ReduceMotion ? 40f : 140f;
 
@@ -84,7 +88,7 @@ namespace Template.Feel
                     c.a = a;
                     l.color = c;
                 }, Ease.InQuad, useUnscaledTime: true))
-                .OnComplete(label.gameObject, go => UnityEngine.Object.Destroy(go));
+                .OnComplete(label.gameObject, go => UnityEngine.Object.Destroy(go), warnIfTargetDestroyed: false); // the scene may unload first
         }
     }
 }

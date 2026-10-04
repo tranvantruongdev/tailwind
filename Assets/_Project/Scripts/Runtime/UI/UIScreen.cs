@@ -25,6 +25,7 @@ namespace Template.UI
             gameObject.SetActive(true);
             Group.blocksRaycasts = true;
             Group.interactable = false;
+            UiFeedback.RaiseOpened();
 
             if (JuiceFx.ReduceMotion)
             {
@@ -47,6 +48,7 @@ namespace Template.UI
         public virtual async UniTask HideAsync()
         {
             Group.interactable = false;
+            UiFeedback.RaiseClosed();
             if (!JuiceFx.ReduceMotion)
             {
                 await Tween.Custom(Group, Group.alpha, 0f, TransitionSeconds, (g, v) => g.alpha = v, useUnscaledTime: true);

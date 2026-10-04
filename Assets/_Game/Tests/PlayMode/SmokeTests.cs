@@ -27,6 +27,15 @@ namespace Tailwind.PlayModeTests
             yield return new WaitForSeconds(0.6f);
             Capture("1-title");
 
+            // Settings popup over the title, then close it again.
+            var title = UnityEngine.Object.FindAnyObjectByType<TailwindTitleController>();
+            Assert.IsNotNull(title, "TailwindTitleController should exist in the Title scene");
+            Call(title, "OpenSettings");
+            yield return new WaitForSecondsRealtime(0.5f);
+            Capture("7-settings");
+            Call(title, "CloseSettings");
+            yield return new WaitForSecondsRealtime(0.4f);
+
             Services.Get<GameFlow>().GoToAsync(AppState.Game).Forget();
             yield return WaitForScene("Game", 20f);
             yield return new WaitForSeconds(0.6f);
@@ -61,6 +70,12 @@ namespace Tailwind.PlayModeTests
                 {
                     Capture("3-flying");
                     flyingShot = true;
+
+                    // Pause mid-flight, look at the pause card, carry on.
+                    Call(controller, "Pause");
+                    yield return new WaitForSecondsRealtime(0.5f);
+                    Capture("8-pause");
+                    Call(controller, "Resume"); // straight back to the autopilot loop, so the glider keeps flying
                 }
 
                 if (!streamShot && run.InStream && run.X > 20f)
@@ -85,7 +100,7 @@ namespace Tailwind.PlayModeTests
             }
 
             Assert.IsTrue(flown.Crashed, "glider should crash once nobody taps");
-            yield return new WaitForSecondsRealtime(1.2f);
+            yield return new WaitForSecondsRealtime(2.4f); // let the results reveal finish (rows, count-up, ribbon)
             Capture("5-results");
             Assert.Greater(Services.Get<Template.Core.Save.SaveService>().Data.totalRuns, 0, "the run should be saved");
 
@@ -111,6 +126,21 @@ namespace Tailwind.PlayModeTests
             }
         }
 
-        private static void Capture(string name) => CameraShot.Save(Path.Combine(CameraShot.Folder("screenshots"), name + ".png"));
+        /// <summary>Saves the screen at three shapes: 9:16 phone, 20:9 tall phone, 4:3 tablet.</summary>
+        private static void Capture(string name)
+        {
+            string root = CameraShot.Folder("screenshots");
+            CameraShot.Save(Path.Combine(root, name + ".png"));
+            CameraShot.Save(Path.Combine(root, "tall", name + ".png"), 540, 1200);
+            CameraShot.Save(Path.Combine(root, "tablet", name + ".png"), 768, 1024);
+        }
+
+        /// <summary>Calls a private method (screens and controllers keep their handlers private).</summary>
+        private static void Call(object target, string method)
+        {
+            var info = target.GetType().GetMethod(method, BindingFlags.NonPublic | BindingFlags.Instance);
+            Assert.IsNotNull(info, $"{target.GetType().Name}.{method} not found");
+            info.Invoke(target, null);
+        }
     }
 }

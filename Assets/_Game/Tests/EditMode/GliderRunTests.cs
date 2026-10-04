@@ -140,6 +140,28 @@ namespace Tailwind.Core.Tests
         }
 
         [Test]
+        public void Combo_hold_drains_after_leaving_and_best_combo_is_kept()
+        {
+            var stream = new WindStream { xStart = 0f, xEnd = 4f, yCenter = 5.5f, height = 1.2f };
+            var run = new GliderRun(T, new Course(T, new Chimney[0], new[] { stream }));
+            Assert.AreEqual(0f, run.ComboHold, "no combo yet");
+
+            var events = RideStream(run, 0.9f); // still inside, combo > 1
+            Assert.Greater(run.Combo, 1);
+            Assert.AreEqual(1f, run.ComboHold, "held fully while riding");
+
+            events.AddRange(Advance(run, 0.6f, holdHeight: true)); // left the stream at x = 4, part of the grace used
+            Assert.IsFalse(run.InStream);
+            Assert.That(run.ComboHold, Is.GreaterThan(0f).And.LessThan(1f));
+            int peak = events.Where(e => e.type == RunEventType.ComboChanged).Max(e => e.value);
+
+            Advance(run, 2f, holdHeight: true); // grace over
+            Assert.AreEqual(1, run.Combo);
+            Assert.AreEqual(0f, run.ComboHold);
+            Assert.AreEqual(peak, run.BestCombo, "best combo survives the lapse");
+        }
+
+        [Test]
         public void Letters_score_ten_times_combo_once()
         {
             // On the free-fall path: after 0.1 s the glider is at x 0.3, y ≈ 5.41.

@@ -5,7 +5,9 @@
         "Template.Core",
         "Template.Runtime",
         "Tailwind.Runtime",
-        "Unity.InputSystem"
+        "Unity.InputSystem",
+        "Unity.TextMeshPro",
+        "Unity.TextMeshPro.Editor"
     ],
     "includePlatforms": [
         "Editor"

@@ -81,6 +81,12 @@ namespace Tailwind
             _hud.ResumePressed += Resume;
             _hud.RetryPressed += NewRun;
             _hud.HomePressed += GoHome;
+            _hud.ResultsRowShown += row => _audio.PlaySfx(_sfx.ComboUp, 0.35f, 0.9f + row * 0.12f);
+            _hud.NewBestShown += () =>
+            {
+                _audio.PlaySfx(_sfx.Story);
+                Haptics.Medium();
+            };
             AppLifecycle.BackPressed += OnBack;
             AppLifecycle.PauseChanged += OnAppPause;
 
@@ -140,7 +146,8 @@ namespace Tailwind
                 }
 
                 _hud.SetDistance(_run.Distance);
-                _hud.SetCombo(_run.Combo);
+                _hud.SetCombo(_run.Combo, _run.ComboHold);
+                _hud.SetLetters(_run.LettersCollected);
             }
 
             if (_phase.Current != Phase.Crashed && _phase.Current != Phase.Results)
@@ -264,7 +271,20 @@ namespace Tailwind
             save.Save();
 
             _phase.Go(Phase.Results);
-            _hud.ShowResults(_run.Distance, _run.DeliveryPoints, _run.Score, newBest, data.bestScore, storyLine);
+            int nearMissPoints = _run.NearMisses * _tuning.nearMissPoints;
+            _hud.ShowResults(new RunSummary
+            {
+                distance = _run.Distance,
+                letters = _run.LettersCollected,
+                letterPoints = _run.DeliveryPoints - nearMissPoints,
+                nearMisses = _run.NearMisses,
+                nearMissPoints = nearMissPoints,
+                bestCombo = _run.BestCombo,
+                score = _run.Score,
+                best = data.bestScore,
+                newBest = newBest,
+                storyLine = storyLine,
+            });
         }
 
         private void Pause()

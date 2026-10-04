@@ -4,7 +4,7 @@
 the rooftops of Gióng Town at dusk. Tap to flap, and ride the **wind streams** to glide faster and build
 a combo, the way a cyclist drafts behind a rival.
 
-> **Status (Oct 2026):** first playable preview. All 59 EditMode tests pass in Unity 6.3 LTS, and a
+> **Status (Oct 2026):** first playable preview. All 60 EditMode tests pass in Unity 6.3 LTS, and a
 > PlayMode smoke test boots the real game and flies it with the autopilot through a crash and the results
 > screen. The screenshots below come from that test.
 
@@ -59,6 +59,10 @@ Assets/_Project/                shared template: boot flow, saves, audio, haptic
      between them.
 
   A one-off probe of 100 seeds × 1,000 m gave 0 crashes.
+- **UI built in code from one theme:** TextMeshPro with Baloo 2 and Patrick Hand (static atlases that include
+  every Vietnamese letter), rounded 9-sliced shapes drawn at runtime, buttons that react when the finger goes
+  down (scale, tick, haptic), and screens pinned to the safe area's edges. A PlayMode test captures every
+  screen at 9:16, 20:9 and 4:3.
 
 ```bash
 dotnet test Tools/GameTests/Tailwind.Core.Tests.csproj   # game rules, ~2 s
@@ -68,7 +72,7 @@ dotnet test Tools/CoreTests/Template.Core.Tests.csproj   # template core
 In Unity (headless, Windows):
 
 ```bash
-powershell -ExecutionPolicy Bypass -File Tools/run-unity-tests.ps1                              # 59 EditMode tests
+powershell -ExecutionPolicy Bypass -File Tools/run-unity-tests.ps1                              # 60 EditMode tests
 powershell -ExecutionPolicy Bypass -File Tools/run-unity-tests.ps1 -TestPlatform PlayMode -Graphics  # smoke test + screenshots in Logs/screenshots
 ```
 
@@ -76,3 +80,5 @@ powershell -ExecutionPolicy Bypass -File Tools/run-unity-tests.ps1 -TestPlatform
 
 Built with AI assistance (Claude Code). I designed the systems, reviewed and tested all code.
 Libraries: UniTask (MIT), PrimeTween, Newtonsoft JSON (MIT).
+Fonts: [Baloo 2](https://github.com/EkType/Baloo2) and Patrick Hand (SIL Open Font License, see `Assets/_Game/Fonts/OFL-*.txt`).
+Icons: [Kenney Game Icons](https://kenney.nl/assets/game-icons) (CC0).

@@ -5,20 +5,21 @@ using Tailwind.Core;
 using Tailwind.View;
 using Template.Core.Save;
 using Template.Core.Settings;
+using Template.Feel;
 using Template.Game.Flow;
 using Template.Infra;
 using Template.Infra.Settings;
 using Template.UI;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
-using UnityEngine.UI;
 
 namespace Tailwind
 {
     /// <summary>
-    /// Title screen. It doubles as the tutorial: "Tap to fly" starts a run. Shows the latest story
-    /// beat and best results, and opens the shared settings popup.
+    /// Title screen. It doubles as the tutorial: "Tap to fly" (or a tap anywhere) starts a run. Shows the latest
+    /// story beat in handwriting and the best result, and opens the shared settings popup from the gear.
     /// </summary>
     public sealed class TailwindTitleController : MonoBehaviour
     {
@@ -26,6 +27,8 @@ namespace Tailwind
         private SettingsPanelView _settingsView;
         private SettingsPresenter _settingsPresenter;
         private Transform _glider;
+        private Transform _envelope;
+        private RectTransform _play;
         private bool _leaving;
 
         private void Start()
@@ -48,30 +51,90 @@ namespace Tailwind
             Tween.PositionY(_glider, 6.6f, 1.2f, Ease.InOutSine, cycles: -1, cycleMode: CycleMode.Yoyo);
             Tween.Rotation(_glider, new Vector3(0f, 0f, 8f), 1.2f, Ease.InOutSine, cycles: -1, cycleMode: CycleMode.Yoyo);
 
+            BuildUi();
+        }
+
+        private void BuildUi()
+        {
+            var theme = UiTheme.Current;
+            var save = Services.Get<SaveService>().Data;
             UiFactory.EnsureEventSystem();
             var canvas = UiFactory.CreateCanvas("Title UI");
             _stack = canvas.gameObject.AddComponent<ScreenStack>();
             _stack.RootBackPressed += Application.Quit;
             var safe = UiFactory.CreateSafeArea(canvas.transform);
 
-            var save = Services.Get<SaveService>().Data;
-            var title = UiFactory.CreateText(safe, "Tailwind", 150, new Vector2(0, 700), new Vector2(1000, 220));
-            title.fontStyle = FontStyle.Bold;
-            UiFactory.CreateText(safe, StoryBeats.TextFor(save.storyIndex), 42, new Vector2(0, 540), new Vector2(940, 140)).fontStyle = FontStyle.Italic;
+            var logo = UiFactory.CreateText(safe, "Tailwind", 176, Vector2.zero, new Vector2(1000, 230), TextAlignmentOptions.Center, UiFont.Display);
+            UiFactory.Place(logo, new Vector2(0.5f, 1f), new Vector2(0f, -330f));
+            logo.color = theme.paper;
+            if (theme.displayShadow != null)
+            {
+                logo.fontSharedMaterial = theme.displayShadow;
+            }
+
+            // A letter riding along with the logo.
+            var envelope = UiFactory.CreateImage(logo.rectTransform, ProceduralSprites.Envelope, new Vector2(345f, 78f), new Vector2(88f, 64f), Palette.Letter);
+            _envelope = envelope.transform;
+            _envelope.localRotation = Quaternion.Euler(0f, 0f, -12f);
+            if (!JuiceFx.ReduceMotion)
+            {
+                Tween.LocalPositionY(_envelope, 92f, 1.4f, Ease.InOutSine, cycles: -1, cycleMode: CycleMode.Yoyo);
+            }
+
+            var tagline = UiFactory.CreateText(safe, StoryBeats.TextFor(save.storyIndex), 58, Vector2.zero, new Vector2(900, 170),
+                TextAlignmentOptions.Center, UiFont.Story);
+            UiFactory.Place(tagline, new Vector2(0.5f, 1f), new Vector2(0f, -510f));
+            tagline.color = new Color(1f, 1f, 1f, 0.9f);
+
+            var gear = UiFactory.CreateIconButton(safe, theme.iconSettings, Vector2.zero, 104, () => OpenSettings().Forget(), ButtonStyle.Glass, "Settings");
+            UiFactory.Place(gear, new Vector2(1f, 1f), new Vector2(-92f, -92f));
 
             if (save.totalRuns > 0)
             {
-                UiFactory.CreateText(safe, $"Best {save.bestScore}   ·   {save.bestDistance} m", 48, new Vector2(0, -330), new Vector2(900, 90));
+                var chip = UiFactory.CreateRect("Best", safe);
+                chip.sizeDelta = new Vector2(540f, 84f);
+                UiFactory.Place(chip, new Vector2(0.5f, 0f), new Vector2(0f, 560f));
+                UiFactory.CreateRounded(chip, Vector2.zero, chip.sizeDelta, new Color(0f, 0f, 0f, 0.32f), 42);
+                UiFactory.CreateImage(chip, theme.iconTrophy, new Vector2(-205f, 0f), new Vector2(52f, 52f), theme.accent).name = "Trophy";
+                UiFactory.CreateText(chip, $"Best {save.bestScore}  ·  {save.bestDistance} m", 44, new Vector2(30f, 3f), new Vector2(430f, 84f))
+                    .color = theme.textOnDark;
             }
 
-            var hint = UiFactory.CreateText(safe, "Tap to fly", 72, new Vector2(0, -470), new Vector2(900, 120));
-            hint.color = Palette.Accent;
-            Tween.Scale(hint.transform, 1.08f, 0.6f, Ease.InOutSine, cycles: -1, cycleMode: CycleMode.Yoyo);
+            // The breathing lives on a container so it doesn't fight the button's own press animation.
+            _play = UiFactory.CreateRect("Play", safe);
+            _play.sizeDelta = new Vector2(620f, 160f);
+            UiFactory.Place(_play, new Vector2(0.5f, 0f), new Vector2(0f, 360f));
+            UiFactory.CreateButton(_play, "Tap to fly", Vector2.zero, new Vector2(620f, 160f), StartGame, ButtonStyle.Primary, theme.iconPlay);
 
-            UiFactory.CreateButton(safe, "Settings", new Vector2(0, -760), new Vector2(420, 120), () => OpenSettings().Forget());
-
-            _settingsView = SettingsPanelView.Create(safe);
+            _settingsView = SettingsPanelView.Create(canvas.transform);
             _settingsView.CloseRequested += () => CloseSettings().Forget();
+
+            Appear(logo.rectTransform, 0f);
+            Appear(tagline.rectTransform, 0.08f);
+            Appear(_play, 0.16f);
+            if (!JuiceFx.ReduceMotion)
+            {
+                Tween.Scale(_play, 1.04f, 1f, Ease.InOutSine, cycles: -1, cycleMode: CycleMode.Yoyo, startDelay: 0.6f);
+            }
+        }
+
+        /// <summary>Fades in while rising 24 px; skipped with reduce motion.</summary>
+        private static void Appear(RectTransform rect, float delay)
+        {
+            if (JuiceFx.ReduceMotion)
+            {
+                return;
+            }
+
+            var group = rect.gameObject.AddComponent<CanvasGroup>();
+            group.alpha = 0f;
+            var to = rect.anchoredPosition;
+            var from = to + new Vector2(0f, -24f);
+            rect.anchoredPosition = from;
+            Sequence.Create()
+                .ChainDelay(delay)
+                .Chain(Tween.Custom(group, 0f, 1f, UiTheme.Current.normal, (g, a) => g.alpha = a))
+                .Group(Tween.Custom(rect, from, to, UiTheme.Current.normal, (r, p) => r.anchoredPosition = p, Ease.OutCubic));
         }
 
         private void Update()
@@ -86,9 +149,19 @@ namespace Tailwind
                            !(EventSystem.current != null && EventSystem.current.IsPointerOverGameObject());
             if (keyboard || pointer)
             {
-                _leaving = true;
-                Services.Get<GameFlow>().GoToAsync(AppState.Game).Forget();
+                StartGame();
             }
+        }
+
+        private void StartGame()
+        {
+            if (_leaving || _stack == null || _stack.Count > 0)
+            {
+                return;
+            }
+
+            _leaving = true;
+            Services.Get<GameFlow>().GoToAsync(AppState.Game).Forget();
         }
 
         private async UniTaskVoid OpenSettings()
@@ -114,6 +187,16 @@ namespace Tailwind
             if (_glider != null)
             {
                 Tween.StopAll(_glider);
+            }
+
+            if (_envelope != null)
+            {
+                Tween.StopAll(_envelope);
+            }
+
+            if (_play != null)
+            {
+                Tween.StopAll(_play);
             }
         }
     }

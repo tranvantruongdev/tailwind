@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 975024e4a2d43df4d8c38179602c1208, type: 3}
+  m_Name: UiTheme
+  m_EditorClassIdentifier: Template.Runtime::Template.UI.UiTheme
+  body: {fileID: 11400000, guid: ed6b1aa79515f924aae5cf282c9d551c, type: 2}
+  display: {fileID: 11400000, guid: 933f12efde2df9a448f911625f1939e6, type: 2}
+  story: {fileID: 11400000, guid: e5f468e060c87a248b9dc1fc2e2c63bd, type: 2}
+  displayShadow: {fileID: 2100000, guid: 4b34a393a4e7fc84ba75dd2613b03410, type: 2}
+  bodyOutline: {fileID: 2100000, guid: daf8a950858e2b744aee18d515e7e0b5, type: 2}
+  paper: {r: 0.9647059, g: 0.92156863, b: 0.8509804, a: 1}
+  paperEdge: {r: 0.8862745, g: 0.8117647, b: 0.69411767, a: 1}
+  ink: {r: 0.16470589, g: 0.12156863, b: 0.23921569, a: 1}
+  muted: {r: 0.16470589, g: 0.12156863, b: 0.23921569, a: 0.62}
+  accent: {r: 1, g: 0.78431374, b: 0.23921569, a: 1}
+  accentEdge: {r: 0.8509804, g: 0.6039216, b: 0.11764706, a: 1}
+  highlight: {r: 1, g: 0.47843137, b: 0.27058825, a: 1}
+  overlay: {r: 0.11764706, g: 0.08235294, b: 0.2, a: 0.62}
+  textOnDark: {r: 1, g: 1, b: 1, a: 1}
+  chipRadius: 16
+  buttonRadius: 28
+  cardRadius: 44
+  instant: 0.08
+  fast: 0.18
+  normal: 0.35
+  pressScale: 0.95
+  iconPause: {fileID: 21300000, guid: cdb044fd49c2bc44095d58d9d744c751, type: 3}
+  iconPlay: {fileID: 21300000, guid: 50cda07d0099a0445b0926dda06c55af, type: 3}
+  iconHome: {fileID: 21300000, guid: d04d3190d3c02ce419bd3016e726c4dc, type: 3}
+  iconRetry: {fileID: 21300000, guid: 8e3e5c51d2bf4b7438f88babde561286, type: 3}
+  iconSettings: {fileID: 21300000, guid: 5a02aaa4591bc8d43a7722a5a64e7255, type: 3}
+  iconClose: {fileID: 21300000, guid: 1e52bf1244c5fed40a2607076387bfd3, type: 3}
+  iconSoundOn: {fileID: 21300000, guid: 3074e32682d4c8a479912116efda5533, type: 3}
+  iconSoundOff: {fileID: 21300000, guid: 7aec6a0c59112c64084f9f10ddee6139, type: 3}
+  iconMusicOn: {fileID: 21300000, guid: 97f81a7bb987b9c41b9233e13c0cab52, type: 3}
+  iconMusicOff: {fileID: 21300000, guid: 801ef79dad51ad2419828b7789d1b054, type: 3}
+  iconVibration: {fileID: 21300000, guid: a7179dce7e62ffa4c9c501bc83609c46, type: 3}
+  iconMotion: {fileID: 21300000, guid: 7fd3892ec992711438ca47984dafd699, type: 3}
+  iconTrophy: {fileID: 21300000, guid: d331c113528c6134f898334db04b5bd1, type: 3}
+  iconStar: {fileID: 21300000, guid: 987b14d4c2adf9741a5dcd6bf6ebf7f4, type: 3}
+  iconCheck: {fileID: 21300000, guid: d2abd62ba5325e34db0061dc1f9c09f6, type: 3}
+  credits: 'Fonts: Baloo 2 and Patrick Hand (SIL Open Font License). Icons: Kenney
+    (CC0).'

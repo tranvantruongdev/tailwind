@@ -53,6 +53,7 @@ namespace Tailwind.Core
             Course = course ?? throw new ArgumentNullException(nameof(course));
             Y = (_t.groundY + _t.ceilingY) * 0.5f;
             Combo = 1;
+            BestCombo = 1;
             Speed = Difficulty.SpeedAt(_t, 0f);
             Course.EnsureGeneratedUntil(GenerateAhead);
         }
@@ -69,6 +70,16 @@ namespace Tailwind.Core
         public float Speed { get; private set; }
         public bool InStream { get; private set; }
         public int Combo { get; private set; }
+
+        /// <summary>Highest combo reached this run (for the results screen).</summary>
+        public int BestCombo { get; private set; }
+
+        /// <summary>
+        /// How much of the combo is still held, 0..1: 1 while riding a stream, then draining over the grace
+        /// period after leaving it, 0 when there is no combo. Read-only view for the HUD's combo ring.
+        /// </summary>
+        public float ComboHold => Combo <= 1 ? 0f : InStream ? 1f : Math.Max(0f, Math.Min(1f, _graceLeft / _t.comboGraceSeconds));
+
         public int DeliveryPoints { get; private set; }
         public int LettersCollected => _collectedLetters.Count;
         public int NearMisses { get; private set; }
@@ -173,6 +184,7 @@ namespace Tailwind.Core
                     if (Combo < _t.maxCombo)
                     {
                         Combo++;
+                        BestCombo = Math.Max(BestCombo, Combo);
                         Emit(events, RunEventType.ComboChanged, Combo);
                     }
                 }

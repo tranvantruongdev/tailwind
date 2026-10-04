@@ -22,10 +22,11 @@ namespace Template.EditorTools.Setup
         [MenuItem("Template/Apply Project Setup", priority = 0)]
         public static void ApplyAll()
         {
+            TextSetup.EnsureEssentials();
             ApplyPlayerSettings();
             CreateScenes();
             AssetDatabase.SaveAssets();
-            Debug.Log("[Template] Project setup applied: player settings, scenes and build list.");
+            Debug.Log("[Template] Project setup applied: TextMeshPro resources, player settings, scenes and build list.");
         }
 
         /// <summary>Batch-mode entry: Unity -batchmode -executeMethod Template.EditorTools.Setup.TemplateSetup.ApplyAllBatch</summary>
