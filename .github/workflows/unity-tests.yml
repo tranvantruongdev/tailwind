@@ -19,7 +19,7 @@ permissions:
 jobs:
   editmode:
     name: EditMode (Unity)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Check for Unity login secrets
         id: licence
@@ -28,10 +28,10 @@ jobs:
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         run: echo "present=$([ -n "$UNITY_EMAIL" ] && [ -n "$UNITY_PASSWORD" ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         if: steps.licence.outputs.present == 'true'
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         if: steps.licence.outputs.present == 'true'
         with:
           path: Library
