@@ -114,6 +114,15 @@ jobs:
           name: release-dry-run
           path: release/
 
+      # GitHub first: if itch.io isn't ready (no page yet, key revoked), the release still exists.
+      - uses: softprops/action-gh-release@v3
+        if: startsWith(github.ref, 'refs/tags/v')
+        with:
+          files: |
+            release/*.apk
+            release/*-windows.zip
+          generate_release_notes: true
+
       - name: Push to itch.io
         if: startsWith(github.ref, 'refs/tags/v') && vars.ITCH_USER != '' && vars.ITCH_GAME != ''
         env:
@@ -125,11 +134,3 @@ jobs:
           unzip -q butler.zip && chmod +x butler
           ./butler push release/*.apk "$ITCH_TARGET:android" --userversion "${{ github.ref_name }}"
           ./butler push release/*-windows.zip "$ITCH_TARGET:windows" --userversion "${{ github.ref_name }}"
-
-      - uses: softprops/action-gh-release@v3
-        if: startsWith(github.ref, 'refs/tags/v')
-        with:
-          files: |
-            release/*.apk
-            release/*-windows.zip
-          generate_release_notes: true
