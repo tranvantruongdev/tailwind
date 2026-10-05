@@ -66,6 +66,7 @@ namespace Tailwind
 
             _audio = Services.Get<AudioService>();
             _sfx = new SfxBank();
+            MusicLoop.Play(); // carries on from the title
 
             _camera = Camera.main;
             _camera.orthographic = true;

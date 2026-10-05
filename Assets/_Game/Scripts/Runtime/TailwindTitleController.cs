@@ -54,6 +54,7 @@ namespace Tailwind
             Tween.Rotation(_glider, new Vector3(0f, 0f, 8f), 1.2f, Ease.InOutSine, cycles: -1, cycleMode: CycleMode.Yoyo);
 
             BuildUi();
+            Audio.MusicLoop.Play();
         }
 
         private void BuildUi()
