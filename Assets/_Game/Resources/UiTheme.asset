@@ -48,5 +48,5 @@ MonoBehaviour:
   iconTrophy: {fileID: 21300000, guid: d331c113528c6134f898334db04b5bd1, type: 3}
   iconStar: {fileID: 21300000, guid: 987b14d4c2adf9741a5dcd6bf6ebf7f4, type: 3}
   iconCheck: {fileID: 21300000, guid: d2abd62ba5325e34db0061dc1f9c09f6, type: 3}
-  credits: 'Fonts: Baloo 2 and Patrick Hand (SIL Open Font License). Icons: Kenney
-    (CC0).'
+  credits: 'Fonts: Baloo 2, Patrick Hand, M PLUS Rounded 1c (SIL Open Font License).
+    Icons: Kenney (CC0).'

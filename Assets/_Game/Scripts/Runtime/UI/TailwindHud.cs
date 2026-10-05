@@ -128,7 +128,7 @@ namespace Tailwind.UI
             UiFactory.Place(_hint, new Vector2(0.5f, 0f), new Vector2(0f, 340f));
             UiFactory.AddShadow(_hint, Vector2.zero, new Vector2(560f, 128f), 64, 0.3f, 10f);
             UiFactory.CreateRounded(_hint, Vector2.zero, new Vector2(560f, 128f), theme.accent, 64);
-            UiFactory.CreateText(_hint, "Tap to fly", 62, new Vector2(0f, 3f), new Vector2(520f, 128f), TextAlignmentOptions.Center, UiFont.Display)
+            UiFactory.CreateText(_hint, Loc.T("Tap to fly"), 62, new Vector2(0f, 3f), new Vector2(520f, 128f), TextAlignmentOptions.Center, UiFont.Display)
                 .color = theme.ink;
         }
 
@@ -219,7 +219,7 @@ namespace Tailwind.UI
         public void ShowStory(string text)
         {
             _storySequence.Stop();
-            _storyText.text = text;
+            _storyText.text = Loc.T(text);
             _story.gameObject.SetActive(true);
             var hidden = new Vector2(0f, 260f);
             var shown = new Vector2(0f, -400f);

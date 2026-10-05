@@ -33,14 +33,20 @@ namespace Tailwind.UI
         private const float RowStep = 0.16f;
         private const float CountSeconds = 0.7f;
 
-        private static readonly string[] Tips =
+        private const int TipCount = 5;
+
+        /// <summary>One rule of the game, in the player's language.</summary>
+        private static string Tip(int index)
         {
-            "Ride the pale wind streams to build a combo.",
-            "Letters are worth 10 × your combo.",
-            "The combo fades a second after you leave the wind.",
-            "Skim past a chimney for a near-miss bonus.",
-            "Inside the wind, flaps are gentler. Tap a little more.",
-        };
+            switch (index % TipCount)
+            {
+                case 0: return Loc.T("Ride the pale wind streams to build a combo.");
+                case 1: return Loc.T("Letters are worth 10 × your combo.");
+                case 2: return Loc.T("The combo fades a second after you leave the wind.");
+                case 3: return Loc.T("Skim past a chimney for a near-miss bonus.");
+                default: return Loc.T("Inside the wind, flaps are gentler. Tap a little more.");
+            }
+        }
 
         private readonly TextMeshProUGUI[] _rowValues = new TextMeshProUGUI[4];
         private readonly RectTransform[] _rows = new RectTransform[4];
@@ -70,17 +76,18 @@ namespace Tailwind.UI
             var screen = overlay.gameObject.AddComponent<ResultsScreen>();
             var card = UiFactory.CreateCard(overlay.rectTransform, Vector2.zero, new Vector2(900, 1360));
 
-            UiFactory.CreateText(card, "Delivered", 92, new Vector2(0, 525), new Vector2(760, 130), TextAlignmentOptions.Center, UiFont.Display)
+            UiFactory.CreateText(card, Loc.T("Delivered"), 92, new Vector2(0, 525), new Vector2(760, 130), TextAlignmentOptions.Center, UiFont.Display)
                 .color = theme.ink;
 
-            string[] labels = { "Distance", "Letters", "Near misses", "Best combo" };
+            string[] labels = { "Distance", "Letters", "Near misses", "Best combo" }; // row names, kept in English
+            string[] shown = { Loc.T("Distance"), Loc.T("Letters"), Loc.T("Near misses"), Loc.T("Best combo") };
             for (int i = 0; i < labels.Length; i++)
             {
                 float y = 385f - i * 100f;
                 var row = UiFactory.CreateRect("Row " + labels[i], card);
                 row.anchoredPosition = new Vector2(0f, y);
                 row.sizeDelta = new Vector2(760f, 90f);
-                UiFactory.CreateText(row, labels[i], 46, new Vector2(-190f, 0f), new Vector2(380f, 90f), TextAlignmentOptions.MidlineLeft)
+                UiFactory.CreateText(row, shown[i], 46, new Vector2(-190f, 0f), new Vector2(380f, 90f), TextAlignmentOptions.MidlineLeft)
                     .color = theme.muted;
                 var value = UiFactory.CreateText(row, "", 54, new Vector2(190f, 0f), new Vector2(380f, 90f), TextAlignmentOptions.MidlineRight,
                     UiFont.Display);
@@ -94,7 +101,7 @@ namespace Tailwind.UI
                 screen._rowValues[i] = value;
             }
 
-            UiFactory.CreateText(card, "SCORE", 38, new Vector2(0, -35), new Vector2(400, 60)).color = theme.muted;
+            UiFactory.CreateText(card, Loc.T("SCORE"), 38, new Vector2(0, -35), new Vector2(400, 60)).color = theme.muted;
             screen._total = UiFactory.CreateText(card, "0", 150, new Vector2(0, -130), new Vector2(760, 170), TextAlignmentOptions.Center, UiFont.Display);
             screen._total.color = theme.ink;
             screen._best = UiFactory.CreateText(card, "", 40, new Vector2(0, -225), new Vector2(700, 60));
@@ -106,7 +113,7 @@ namespace Tailwind.UI
 
             UiFactory.CreateIconButton(card, theme.iconHome, new Vector2(-330, -545), 124, () => screen.HomePressed?.Invoke(),
                 ButtonStyle.Secondary, "Home");
-            UiFactory.CreateButton(card, "Retry", new Vector2(80, -545), new Vector2(600, 150), () => screen.RetryPressed?.Invoke(),
+            UiFactory.CreateButton(card, Loc.T("Retry"), new Vector2(80, -545), new Vector2(600, 150), () => screen.RetryPressed?.Invoke(),
                 ButtonStyle.Primary, theme.iconRetry);
 
             // The ribbon overlaps the card's top edge, tilted a little like a sticker.
@@ -116,7 +123,7 @@ namespace Tailwind.UI
             screen._ribbon.localRotation = Quaternion.Euler(0f, 0f, -3f);
             UiFactory.AddShadow(screen._ribbon, Vector2.zero, new Vector2(500, 100), 50, 0.3f, 8f);
             UiFactory.CreateRounded(screen._ribbon, Vector2.zero, new Vector2(500, 100), theme.highlight, 50);
-            UiFactory.CreateText(screen._ribbon, "New best!", 64, new Vector2(0, 3), new Vector2(480, 100), TextAlignmentOptions.Center, UiFont.Display);
+            UiFactory.CreateText(screen._ribbon, Loc.T("New best!"), 64, new Vector2(0, 3), new Vector2(480, 100), TextAlignmentOptions.Center, UiFont.Display);
 
             overlay.gameObject.SetActive(false);
             return screen;
@@ -130,11 +137,11 @@ namespace Tailwind.UI
             _rowValues[1].text = $"{summary.letters}<color=#{muted}><size=75%>  +{summary.letterPoints}</size></color>";
             _rowValues[2].text = $"{summary.nearMisses}<color=#{muted}><size=75%>  +{summary.nearMissPoints}</size></color>";
             _rowValues[3].text = "×" + summary.bestCombo;
-            _best.text = summary.newBest ? "Your best yet" : $"Best {summary.best}";
+            _best.text = summary.newBest ? Loc.T("Your best yet") : Loc.F("Best {0}", summary.best);
             // A new story beat if one unlocked; otherwise a tip that teaches one rule of the game.
             _story.text = !string.IsNullOrEmpty(summary.storyLine)
-                ? summary.storyLine
-                : $"<color=#{muted}>Tip:</color> {Tips[(summary.score + summary.distance) % Tips.Length]}";
+                ? Loc.T(summary.storyLine)
+                : $"<color=#{muted}>{Loc.T("Tip:")}</color> {Tip(summary.score + summary.distance)}";
             _ribbon.gameObject.SetActive(false);
             _total.text = UiFactory.Tabular("0");
             foreach (var row in _rows)

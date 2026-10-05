@@ -220,7 +220,7 @@ namespace Tailwind
                     _audio.PlaySfx(_sfx.NearMiss, 0.8f);
                     Haptics.Light();
                     JuiceFx.HitStop(0.04f).Forget();
-                    _hud.FloatAt(_camera, new Vector3(e.x, e.y + 0.6f, 0f), $"Close! +{e.value}", Color.white);
+                    _hud.FloatAt(_camera, new Vector3(e.x, e.y + 0.6f, 0f), Loc.F("Close! +{0}", e.value), Color.white);
                     break;
                 case RunEventType.StoryUnlocked:
                     _audio.PlaySfx(_sfx.Story);

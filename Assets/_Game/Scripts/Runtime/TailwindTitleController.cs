@@ -30,6 +30,8 @@ namespace Tailwind
         private Transform _envelope;
         private RectTransform _play;
         private bool _leaving;
+        private string _builtIn; // the language the labels were built in
+        private static bool _languageChecked;
 
         private void Start()
         {
@@ -57,7 +59,18 @@ namespace Tailwind
         private void BuildUi()
         {
             var theme = UiTheme.Current;
-            var save = Services.Get<SaveService>().Data;
+            var saves = Services.Get<SaveService>();
+            if (!_languageChecked)
+            {
+                _languageChecked = true; // once per app run, before any label is built
+                if (saves.LoadedFrom == "Fresh")
+                {
+                    Services.Get<SettingsService>().Current.language = Loc.FromSystem(); // a first launch speaks the device's language
+                }
+            }
+
+            _builtIn = Loc.Language;
+            var save = saves.Data;
             UiFactory.EnsureEventSystem();
             var canvas = UiFactory.CreateCanvas("Title UI");
             _stack = canvas.gameObject.AddComponent<ScreenStack>();
@@ -81,7 +94,7 @@ namespace Tailwind
                 Tween.LocalPositionY(_envelope, 92f, 1.4f, Ease.InOutSine, cycles: -1, cycleMode: CycleMode.Yoyo);
             }
 
-            var tagline = UiFactory.CreateText(safe, StoryBeats.TextFor(save.storyIndex), 58, Vector2.zero, new Vector2(900, 170),
+            var tagline = UiFactory.CreateText(safe, Loc.T(StoryBeats.TextFor(save.storyIndex)), 58, Vector2.zero, new Vector2(900, 170),
                 TextAlignmentOptions.Center, UiFont.Story);
             UiFactory.Place(tagline, new Vector2(0.5f, 1f), new Vector2(0f, -510f));
             tagline.color = new Color(1f, 1f, 1f, 0.9f);
@@ -96,7 +109,7 @@ namespace Tailwind
                 UiFactory.Place(chip, new Vector2(0.5f, 0f), new Vector2(0f, 560f));
                 UiFactory.CreateRounded(chip, Vector2.zero, chip.sizeDelta, new Color(0f, 0f, 0f, 0.32f), 42);
                 UiFactory.CreateImage(chip, theme.iconTrophy, new Vector2(-205f, 0f), new Vector2(52f, 52f), theme.accent).name = "Trophy";
-                UiFactory.CreateText(chip, $"Best {save.bestScore}  ·  {save.bestDistance} m", 44, new Vector2(30f, 3f), new Vector2(430f, 84f))
+                UiFactory.CreateText(chip, Loc.F("Best {0}  ·  {1} m", save.bestScore, save.bestDistance), 44, new Vector2(30f, 3f), new Vector2(430f, 84f))
                     .color = theme.textOnDark;
             }
 
@@ -104,7 +117,7 @@ namespace Tailwind
             _play = UiFactory.CreateRect("Play", safe);
             _play.sizeDelta = new Vector2(620f, 160f);
             UiFactory.Place(_play, new Vector2(0.5f, 0f), new Vector2(0f, 360f));
-            UiFactory.CreateButton(_play, "Tap to fly", Vector2.zero, new Vector2(620f, 160f), StartGame, ButtonStyle.Primary, theme.iconPlay);
+            UiFactory.CreateButton(_play, Loc.T("Tap to fly"), Vector2.zero, new Vector2(620f, 160f), StartGame, ButtonStyle.Primary, theme.iconPlay);
 
             _settingsView = SettingsPanelView.Create(canvas.transform);
             _settingsView.CloseRequested += () => CloseSettings().Forget();
@@ -177,8 +190,14 @@ namespace Tailwind
         {
             _settingsPresenter?.Dispose();
             _settingsPresenter = null;
-            Services.Get<SettingsService>().Commit();
+            var settings = Services.Get<SettingsService>();
+            settings.Commit();
             await _stack.PopAsync();
+            if (settings.Current.language != _builtIn && !_leaving)
+            {
+                _leaving = true;
+                Services.Get<GameFlow>().GoToAsync(AppState.Title).Forget(); // every label is built once: rebuild in the new language
+            }
         }
 
         private void OnDestroy()

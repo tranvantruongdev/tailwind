@@ -32,13 +32,13 @@ namespace Tailwind.UI
             var screen = overlay.gameObject.AddComponent<PauseScreen>();
             var card = UiFactory.CreateCard(overlay.rectTransform, Vector2.zero, new Vector2(860, 1060));
 
-            UiFactory.CreateText(card, "Paused", 96, new Vector2(0, 400), new Vector2(700, 140), TextAlignmentOptions.Center, UiFont.Display)
+            UiFactory.CreateText(card, Loc.T("Paused"), 96, new Vector2(0, 400), new Vector2(700, 140), TextAlignmentOptions.Center, UiFont.Display)
                 .color = theme.ink;
-            UiFactory.CreateButton(card, "Resume", new Vector2(0, 205), new Vector2(700, 160), () => screen.ResumePressed?.Invoke(),
+            UiFactory.CreateButton(card, Loc.T("Resume"), new Vector2(0, 205), new Vector2(700, 160), () => screen.ResumePressed?.Invoke(),
                 ButtonStyle.Primary, theme.iconPlay);
-            UiFactory.CreateButton(card, "Restart", new Vector2(0, 20), new Vector2(700, 130), () => screen.RestartPressed?.Invoke(),
+            UiFactory.CreateButton(card, Loc.T("Restart"), new Vector2(0, 20), new Vector2(700, 130), () => screen.RestartPressed?.Invoke(),
                 ButtonStyle.Secondary, theme.iconRetry);
-            UiFactory.CreateButton(card, "Home", new Vector2(0, -140), new Vector2(700, 130), () => screen.HomePressed?.Invoke(),
+            UiFactory.CreateButton(card, Loc.T("Home"), new Vector2(0, -140), new Vector2(700, 130), () => screen.HomePressed?.Invoke(),
                 ButtonStyle.Secondary, theme.iconHome);
 
             var sound = UiFactory.CreateIconButton(card, theme.iconSoundOn, new Vector2(-90, -360), 112, screen.ToggleSound, ButtonStyle.Secondary, "S");

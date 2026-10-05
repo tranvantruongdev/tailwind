@@ -109,6 +109,30 @@ namespace Tailwind.PlayModeTests
             yield return WaitForScene("Title", 20f);
             yield return new WaitForSeconds(1.5f);
             Capture("6-title-after-run");
+
+            // Settings → 日本語: closing the panel rebuilds the title in Japanese. The developer's language goes back after.
+            var settings = Services.Get<Template.Infra.Settings.SettingsService>();
+            string before = settings.Current.language;
+            title = UnityEngine.Object.FindAnyObjectByType<TailwindTitleController>();
+            Call(title, "OpenSettings");
+            yield return new WaitForSecondsRealtime(0.5f);
+            var view = (Template.UI.SettingsPanelView)typeof(TailwindTitleController)
+                .GetField("_settingsView", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(title);
+            System.Linq.Enumerable.First(view.GetComponentsInChildren<UnityEngine.UI.Button>(), b => b.name == "Button 日本語").onClick.Invoke();
+            Assert.AreEqual("ja", Loc.Language);
+            Call(title, "CloseSettings");
+            float rebuilt = 0f;
+            while (UnityEngine.Object.FindAnyObjectByType<TailwindTitleController>() == title || UnityEngine.Object.FindAnyObjectByType<TailwindTitleController>() == null)
+            {
+                rebuilt += Time.unscaledDeltaTime;
+                Assert.Less(rebuilt, 10f, "the title rebuilds after the language changes");
+                yield return null;
+            }
+
+            yield return new WaitForSeconds(1.2f);
+            Capture("9-title-japanese");
+            settings.Current.language = before;
+            settings.Commit();
         }
 
         private static IEnumerator WaitForScene(string name, float timeout)

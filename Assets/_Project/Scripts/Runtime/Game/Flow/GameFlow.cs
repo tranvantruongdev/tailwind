@@ -45,8 +45,8 @@ namespace Template.Game.Flow
         private void Awake()
         {
             _states = new StateMachine<AppState>(AppState.Boot)
-                .Allow(AppState.Boot, AppState.Title)
-                .Allow(AppState.Title, AppState.Game)
+                .Allow(AppState.Boot, AppState.Title, AppState.Game)
+                .Allow(AppState.Title, AppState.Game, AppState.Title) // Title again: rebuilt, e.g. in a new language
                 .Allow(AppState.Game, AppState.Title, AppState.Game);
 
             var canvas = UiFactory.CreateCanvas("[Fade]", 1000);
