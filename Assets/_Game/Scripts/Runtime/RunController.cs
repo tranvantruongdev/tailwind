@@ -40,6 +40,7 @@ namespace Tailwind
         private readonly TailwindTuning _tuning = TailwindTuning.Default();
         private readonly List<RunEvent> _events = new List<RunEvent>();
         private StateMachine<Phase> _phase;
+        private Phase _phaseBeforePause = Phase.Flying;
         private GliderRun _run;
         private Camera _camera;
         private GliderView _glider;
@@ -290,6 +291,13 @@ namespace Tailwind
 
         private void Pause()
         {
+            Phase current = _phase.Current;
+            if (current != Phase.Ready && current != Phase.Flying)
+            {
+                return;
+            }
+
+            _phaseBeforePause = current;
             if (_phase.TryGo(Phase.Paused))
             {
                 Time.timeScale = 0f;
@@ -306,7 +314,7 @@ namespace Tailwind
 
             Time.timeScale = 1f;
             _hud.ShowPause(false);
-            _phase.Go(Phase.Flying);
+            _phase.Go(_phaseBeforePause);
         }
 
         private void OnBack()

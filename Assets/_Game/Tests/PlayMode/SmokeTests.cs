@@ -46,6 +46,16 @@ namespace Tailwind.PlayModeTests
             var tap = typeof(RunController).GetMethod("OnTap", BindingFlags.NonPublic | BindingFlags.Instance);
             Assert.IsNotNull(runField);
             Assert.IsNotNull(tap);
+            var readyRun = (GliderRun)runField.GetValue(controller);
+            float readyX = readyRun.X;
+            Call(controller, "Pause");
+            yield return new WaitForSecondsRealtime(0.15f);
+            Assert.AreEqual("Paused", CurrentPhase(controller), "Ready can pause");
+            Call(controller, "Resume");
+            Assert.AreEqual("Ready", CurrentPhase(controller), "resuming before the first tap stays Ready");
+            yield return new WaitForSecondsRealtime(0.15f);
+            Assert.AreEqual("Ready", CurrentPhase(controller));
+            Assert.AreEqual(readyX, readyRun.X, 0.001f, "the glider must not move before the first tap");
             Capture("2-ready");
 
             var tuning = TailwindTuning.Default();
@@ -133,6 +143,12 @@ namespace Tailwind.PlayModeTests
             Capture("9-title-japanese");
             settings.Current.language = before;
             settings.Commit();
+        }
+
+        private static string CurrentPhase(RunController controller)
+        {
+            var machine = typeof(RunController).GetField("_phase", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(controller);
+            return machine.GetType().GetProperty("Current").GetValue(machine).ToString();
         }
 
         private static IEnumerator WaitForScene(string name, float timeout)
